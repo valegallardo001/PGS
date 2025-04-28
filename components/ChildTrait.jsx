@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import CustomToggleButton from "@/components/ui/CustomToggleButton"; // Asegúrate de importar tu botón personalizado
 
 const childTraitsData = {
   10: { id: 10, name: "Estrogen-receptor negative" },
@@ -11,14 +11,18 @@ const childTraitsData = {
   14: { id: 14, name: "Colon disorder" },
 };
 
-export default function ChildTrait({ childTraits }) {
+export default function ChildTrait({ childTraits, selectedChildTrait, onChildTraitSelect }) {
   return (
-    <Card className="w-1/2 p-4">
+    <Card>
       <h2 className="text-lg font-bold mb-2">Child Trait</h2>
       {childTraits.map((id) => (
-        <Button key={id} variant="outline" className="w-full h-16 mb-2">
-          {childTraitsData[id].name}
-        </Button>
+        <CustomToggleButton
+          key={id}
+          label={childTraitsData[id].name}
+          tag={null} // Si no necesitas un número al lado del texto, deja esto como null
+          isSelected={selectedChildTrait === id}
+          onToggle={() => onChildTraitSelect(id)}
+        />
       ))}
     </Card>
   );

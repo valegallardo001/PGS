@@ -2,6 +2,8 @@
 
 import { Select, SelectItem } from "@heroui/react";
 import { useState, useEffect } from "react";
+import { RefreshCcw } from "lucide-react";
+import clsx from "clsx";
 
 export default function BroadAncestrySelector() {
   const [options, setOptions] = useState([]);
@@ -10,7 +12,13 @@ export default function BroadAncestrySelector() {
   useEffect(() => {
     fetch("/api/BroadAncestry")
       .then((res) => res.json())
-      .then((data) => setOptions(data.sort((a, b) => a.Display_category.localeCompare(b.Display_category))))
+      .then((data) =>
+        setOptions(
+          data.sort((a, b) =>
+            a.label.localeCompare(b.label)
+          )
+        )
+      )
       .catch((error) => console.error("Error al cargar los datos:", error));
   }, []);
 
@@ -20,40 +28,71 @@ export default function BroadAncestrySelector() {
     }
   };
 
+  const resetSelection = () => {
+    setSelectedAncestries(new Set());
+  };
+
   return (
-    <div className="w-80">
-      <label className="block text-lg font-bold text-black">Ancestry</label>
-      <Select
-        className="max-w-xs bg-gray-800 text-white border border-gray-600 rounded-lg shadow-md focus:ring-2 focus:ring-blue-500"
-        label="Broad Ancestry"
-        placeholder="Selecciona ancestría"
-        selectionMode="multiple"
-        selectedKeys={selectedAncestries}
-        onSelectionChange={handleSelectionChange}
-        displayValue={() =>
-          Array.from(selectedAncestries)
-            .map((key) => options.find((o) => o.Symbol === key)?.Symbol)  
-            .join(", ") || "Selecciona ancestría"
-        }
-        listboxProps={{ className: "bg-gray-800 border border-gray-600 rounded-lg shadow-md" }}
-      >
-        {options.map((item) => (
-          <SelectItem
-            key={item.Symbol}
-            textValue={item.Display_category}
-            className={({ isSelected }) =>
-              `px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white ${
-                isSelected ? "bg-blue-600 text-white font-bold" : "bg-gray-700 text-gray-200"
-              }`
-            }
+    <div className="w-[400px] p-5"> {/* Puedes ajustar a tu tamaño ideal */}
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <label className="block text-lg font-bold text-black mb-1">
+            Ancestry <span className="text-gray-500 text-sm">ℹ️</span>
+          </label>
+
+          {/* Contenedor fijo para evitar que crezca */}
+          <div className="w-full max-w-full">
+            <Select
+              className="w-full truncate bg-gray-800 text-white border border-gray-600 rounded-lg shadow-md focus:ring-2 focus:ring-blue-500"
+              placeholder="ALL"
+              selectionMode="multiple"
+              selectedKeys={selectedAncestries}
+              onSelectionChange={handleSelectionChange}
+              listboxProps={{
+                className:
+                  "bg-gray-800 border border-gray-600 rounded-lg shadow-md text-white max-h-40 overflow-auto",
+              }}
+            >
+              {options.map((item) => (
+                <SelectItem
+                  key={item.symbol}
+                  textValue={item.label}
+                  className={({ isSelected }) =>
+                    clsx(
+                      "px-4 py-2 rounded-md transition",
+                      isSelected
+                        ? "bg-blue-600 text-white font-bold"
+                        : "bg-gray-700 text-gray-200"
+                    )
+                  }
+                >
+                  {item.label}
+                </SelectItem>
+              ))}
+            </Select>
+          </div>
+
+          {/* Etiqueta con abreviaciones */}
+          <div className="mt-2 text-sm font-semibold text-black truncate">
+            <span className="mr-1">SELECTED:</span>
+            {selectedAncestries.size > 0
+              ? Array.from(selectedAncestries).join(", ")
+              : "Ninguna seleccionada"}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center pt-7">
+          <button
+            onClick={resetSelection}
+            className="bg-orange-400 hover:bg-orange-500 text-white p-3 rounded-full shadow-md transition"
+            title="Reset selection"
           >
-            {item.Display_category}  
-          </SelectItem>
-        ))}
-      </Select>
-      <p className="mt-2 text-black">
-        Seleccionados: {Array.from(selectedAncestries).map((key) => options.find(o => o.Symbol === key)?.Symbol).join(", ")}
-      </p>
+            <RefreshCcw size={20} />
+          </button>
+          <span className="text-sm text-black mt-1 font-semibold">Reset</span>
+        </div>
+      </div>
     </div>
+
   );
 }
