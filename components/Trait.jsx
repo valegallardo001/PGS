@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
-import ChildTrait from "./ChildTrait";
 import CustomToggleButton from "@/components/ui/CustomToggleButton";
 import * as HoverCard from "@radix-ui/react-hover-card";
 
-export default function Trait({ traits, onTraitClick, onChildTraitClick, selectedItems }) {
+export default function Trait({ traits, onTraitClick, selectedItems }) {
   const [selectedTrait, setSelectedTrait] = useState(null);
 
   const handleTraitSelect = (trait) => {
@@ -23,13 +22,8 @@ export default function Trait({ traits, onTraitClick, onChildTraitClick, selecte
   const isTraitSelected = (id) =>
     selectedItems?.some((item) => item.id === id && item.type === "trait");
 
-  const selectedChildTraits = selectedItems
-    ?.filter((item) => item.type === "childTrait")
-    .map((item) => item.id);
-
   return (
     <div className="flex space-x-4">
-      {/* COLUMNA 2: Rasgos */}
       <Card>
         <h2 className="text-lg font-bold mb-2">Trait</h2>
 
@@ -48,10 +42,9 @@ export default function Trait({ traits, onTraitClick, onChildTraitClick, selecte
                     tag={trait.pgss}
                     isActive={isSelected}
                     onToggle={(e) => {
-                      e.stopPropagation(); // 🚫 Evita que suba al div
+                      e.stopPropagation();
                       handleTraitSelect(trait);
                     }}
-
                   />
                 </div>
               </HoverCard.Trigger>
@@ -64,31 +57,22 @@ export default function Trait({ traits, onTraitClick, onChildTraitClick, selecte
                 <div className="text-sm text-gray-600 mb-1">
                   ID:{" "}
                   <a
-                    href="https://www.ebi.ac.uk/ols4/ontologies/efo/terms?iri=http://purl.obolibrary.org/obo/MONDO_0001657"
+                    href={trait.URL || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline"
                   >
-                    MONDO_0001657
+                    {trait.onto_id || "N/A"}
                   </a>
                 </div>
                 <div className="text-sm text-gray-600">
-                  Description: A primary or metastatic malignant neoplasm affecting the brain. [NCIT: C3568]
+                  Description: {trait.description || "No description available"}
                 </div>
               </HoverCard.Content>
             </HoverCard.Root>
           );
         })}
       </Card>
-
-      {/* COLUMNA 3: Child Traits */}
-      {selectedTrait && (
-        <ChildTrait
-          childTraits={traits.find((t) => t.id === selectedTrait)?.childTraits || []}
-          selectedChildTraits={selectedChildTraits}
-          onChildTraitSelect={onChildTraitClick}
-        />
-      )}
     </div>
   );
 }
